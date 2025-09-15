@@ -15,7 +15,9 @@ const ReportCard: React.FC<ReportCardProps> = ({ title, thumbnailUrl, schedule, 
         {thumbnailUrl ? (
           <img src={thumbnailUrl} alt="Report preview" className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-text-muted text-sm">No preview</div>
+          <img src={
+            title.includes('Risk') ? '/previews/risk.svg' : title.includes('Expiry') ? '/previews/expiry.svg' : '/previews/summary.svg'
+          } alt="Report preview" className="w-full h-full object-cover" />
         )}
       </div>
       <div className="p-4 flex items-center justify-between">

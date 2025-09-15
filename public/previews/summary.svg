@@ -1,0 +1,27 @@
+<svg width="720" height="400" viewBox="0 0 720 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6E56CF" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#6E56CF" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="#fff"/>
+  <g transform="translate(32,24)">
+    <rect x="0" y="0" width="656" height="352" rx="12" fill="#F8FAFC"/>
+    <g transform="translate(24,24)">
+      <rect x="0" y="220" width="36" height="60" rx="6" fill="#94A3B8"/>
+      <rect x="56" y="190" width="36" height="90" rx="6" fill="#94A3B8"/>
+      <rect x="112" y="160" width="36" height="120" rx="6" fill="#6E56CF"/>
+      <rect x="168" y="140" width="36" height="140" rx="6" fill="#6E56CF"/>
+      <rect x="224" y="120" width="36" height="160" rx="6" fill="#6E56CF"/>
+      <rect x="280" y="170" width="36" height="110" rx="6" fill="#94A3B8"/>
+      <rect x="336" y="200" width="36" height="80" rx="6" fill="#94A3B8"/>
+      <rect x="392" y="150" width="36" height="130" rx="6" fill="#6E56CF"/>
+      <rect x="448" y="100" width="36" height="180" rx="6" fill="#6E56CF"/>
+      <rect x="504" y="130" width="36" height="150" rx="6" fill="#6E56CF"/>
+    </g>
+    <path d="M24 220 C 100 180, 200 160, 300 180 S 500 140, 640 120" stroke="#6E56CF" stroke-width="3" fill="none"/>
+    <path d="M24 220 C 100 180, 200 160, 300 180 S 500 140, 640 120 L 640 352 L 24 352 Z" fill="url(#g1)"/>
+  </g>
+</svg>
+

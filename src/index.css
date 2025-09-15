@@ -11,3 +11,6 @@
     @apply bg-bg text-text-strong;
   }
 }
+
+/* import mobile overrides */
+@import './styles/responsive.css';

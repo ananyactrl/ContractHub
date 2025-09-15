@@ -19,7 +19,7 @@ const Input: React.FC<InputProps> = ({
   const errorClasses = error ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : '';
   
   const variantClasses = {
-    default: 'px-3 py-2',
+    default: icon ? 'pl-10 pr-3 py-3' : 'px-3 py-3',
     search: 'pl-10 pr-3 py-2',
   };
   

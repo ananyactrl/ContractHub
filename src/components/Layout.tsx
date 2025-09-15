@@ -146,6 +146,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="px-6 lg:px-8 py-4">
             {children}
           </div>
+          <footer className="mt-6 border-t border-border px-6 lg:px-8 py-6 text-sm text-text-muted">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <span>© 2025 ContractHub. All rights reserved.</span>
+              <span>Developed by Ananya Singh.</span>
+            </div>
+          </footer>
         </main>
       </div>
     </div>

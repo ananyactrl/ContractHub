@@ -182,7 +182,7 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {/* Welcome Message Card - Soft Yellow with Design Elements */}
-      <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-8 shadow-soft border border-yellow-100 relative overflow-hidden mt-2">
+      <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-5 sm:p-6 lg:p-8 shadow-soft border border-yellow-100 relative overflow-hidden mt-2">
         {/* Background Design Elements */}
         <div className="absolute top-4 right-4 w-16 h-16 bg-yellow-200/30 rounded-full"></div>
         <div className="absolute bottom-4 left-4 w-8 h-8 bg-amber-200/40 rounded-lg rotate-45"></div>
@@ -190,24 +190,24 @@ const DashboardPage: React.FC = () => {
         
         <div className="flex items-center justify-between relative z-10">
           <div>
-            <h1 className="text-4xl font-bold text-slate-800 mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800 mb-2">
               Good morning, {user?.username || 'User'}! 👋
             </h1>
-            <p className="text-lg text-slate-600">
+            <p className="text-base sm:text-lg text-slate-600">
               SaaS Dashboard wishes you a good and productive day. {stats.total} contracts waiting for your review today. 
               You also have {stats.expiring} contracts expiring soon.
             </p>
           </div>
-          <div className="w-20 h-20 bg-gradient-to-br from-yellow-200 to-amber-200 rounded-2xl flex items-center justify-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-yellow-200 to-amber-200 rounded-2xl flex items-center justify-center">
             <FileText className="h-10 w-10 text-yellow-700" />
           </div>
         </div>
       </div>
 
       {/* Statistics Cards - Healthcare Style */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Contracts - Soft Blue with Design Elements */}
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 shadow-soft border border-blue-100 hover:shadow-lg transition-all duration-300 animate-slide-up relative overflow-hidden">
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 shadow-soft border border-blue-100 hover:shadow-lg transition-all duration-300 animate-slide-up relative overflow-hidden">
           {/* Background Design Elements */}
           <div className="absolute top-2 right-2 w-12 h-12 bg-blue-200/20 rounded-lg rotate-12"></div>
           <div className="absolute bottom-2 left-2 w-6 h-6 bg-indigo-200/30 rounded-full"></div>
@@ -216,7 +216,7 @@ const DashboardPage: React.FC = () => {
           <div className="flex items-center justify-between relative z-10">
             <div>
               <p className="text-sm font-medium text-blue-700 mb-1">Total Contracts</p>
-              <p className="text-4xl font-bold text-slate-800">{stats.total}</p>
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800">{stats.total}</p>
               <p className="text-xs text-blue-600 mt-1">All contracts in system</p>
             </div>
             <div className="w-16 h-16 bg-gradient-to-br from-blue-200 to-indigo-200 rounded-2xl flex items-center justify-center">
@@ -226,7 +226,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* Active Contracts - Soft Green with Design Elements */}
-        <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-6 shadow-soft border border-emerald-100 hover:shadow-lg transition-all duration-300 animate-slide-up relative overflow-hidden" style={{ animationDelay: '0.1s' }}>
+        <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-4 sm:p-6 shadow-soft border border-emerald-100 hover:shadow-lg transition-all duration-300 animate-slide-up relative overflow-hidden" style={{ animationDelay: '0.1s' }}>
           {/* Background Design Elements */}
           <div className="absolute top-3 right-3 w-10 h-10 bg-emerald-200/25 rounded-full"></div>
           <div className="absolute bottom-3 left-3 w-8 h-8 bg-green-200/30 rounded-lg rotate-45"></div>
@@ -235,7 +235,7 @@ const DashboardPage: React.FC = () => {
           <div className="flex items-center justify-between relative z-10">
             <div>
               <p className="text-sm font-medium text-emerald-700 mb-1">Active</p>
-              <p className="text-4xl font-bold text-slate-800">{stats.active}</p>
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800">{stats.active}</p>
               <p className="text-xs text-emerald-600 mt-1">Currently active</p>
             </div>
             <div className="w-16 h-16 bg-gradient-to-br from-emerald-200 to-green-200 rounded-2xl flex items-center justify-center">
@@ -245,7 +245,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* Expiring Soon - Soft Yellow with Design Elements */}
-        <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-6 shadow-soft border border-yellow-100 hover:shadow-lg transition-all duration-300 animate-slide-up relative overflow-hidden" style={{ animationDelay: '0.2s' }}>
+        <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-4 sm:p-6 shadow-soft border border-yellow-100 hover:shadow-lg transition-all duration-300 animate-slide-up relative overflow-hidden" style={{ animationDelay: '0.2s' }}>
           {/* Background Design Elements */}
           <div className="absolute top-2 right-2 w-14 h-14 bg-yellow-200/20 rounded-lg rotate-6"></div>
           <div className="absolute bottom-2 left-2 w-6 h-6 bg-amber-200/30 rounded-full"></div>
@@ -254,7 +254,7 @@ const DashboardPage: React.FC = () => {
           <div className="flex items-center justify-between relative z-10">
             <div>
               <p className="text-sm font-medium text-yellow-700 mb-1">Expiring Soon</p>
-              <p className="text-4xl font-bold text-slate-800">{stats.expiring}</p>
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800">{stats.expiring}</p>
               <p className="text-xs text-yellow-600 mt-1">Need attention</p>
             </div>
             <div className="w-16 h-16 bg-gradient-to-br from-yellow-200 to-amber-200 rounded-2xl flex items-center justify-center">
@@ -264,7 +264,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* High Risk - Soft Pink with Design Elements */}
-        <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-6 shadow-soft border border-pink-100 hover:shadow-lg transition-all duration-300 animate-slide-up relative overflow-hidden" style={{ animationDelay: '0.3s' }}>
+        <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-4 sm:p-6 shadow-soft border border-pink-100 hover:shadow-lg transition-all duration-300 animate-slide-up relative overflow-hidden" style={{ animationDelay: '0.3s' }}>
           {/* Background Design Elements */}
           <div className="absolute top-3 right-3 w-12 h-12 bg-pink-200/25 rounded-lg rotate-12"></div>
           <div className="absolute bottom-3 left-3 w-7 h-7 bg-rose-200/30 rounded-full"></div>
@@ -273,7 +273,7 @@ const DashboardPage: React.FC = () => {
           <div className="flex items-center justify-between relative z-10">
             <div>
               <p className="text-sm font-medium text-pink-700 mb-1">High Risk</p>
-              <p className="text-4xl font-bold text-slate-800">{stats.highRisk}</p>
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-800">{stats.highRisk}</p>
               <p className="text-xs text-pink-600 mt-1">Requires review</p>
             </div>
             <div className="w-16 h-16 bg-gradient-to-br from-pink-200 to-rose-200 rounded-2xl flex items-center justify-center">

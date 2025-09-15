@@ -84,7 +84,7 @@ const InsightsPage: React.FC = () => {
               </div>
             </li>
           </ul>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <KpiCard label="Total" value={stats.total} />
             <KpiCard label="Active" value={stats.active} />
             <KpiCard label="Renewal Due" value={stats.renewalDue} />

@@ -16,13 +16,13 @@ const ReportsPage: React.FC = () => {
       </div>
 
       {banner && (
-        <div className="rounded-lg border border-border bg-brand-100 text-brand-600 px-4 py-3">
+        <div className="rounded-lg border border-border bg-brand-100 text-brand-600 px-3 sm:px-4 py-3">
           {banner}
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
           <ReportCard title="Contract Summary Report" schedule="Weekly" nextRunAt="Today 9:00 AM" />
           <ReportCard title="Risk Analysis Report" schedule="Weekly" nextRunAt="Today 9:05 AM" />
           <ReportCard title="Expiry Report" schedule="Daily" nextRunAt="Tomorrow 7:00 AM" />

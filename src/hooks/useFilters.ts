@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { type Contract } from '../services/api';
 
 interface FilterState {
@@ -21,13 +21,16 @@ interface UseFiltersReturn {
 }
 
 export const useFilters = (contracts: Contract[]): UseFiltersReturn => {
-  const [filters, setFilters] = useState<FilterState>({
-    status: 'all',
-    risk: 'all',
-    dateRange: {
-      start: '',
-      end: '',
-    },
+  const [filters, setFilters] = useState<FilterState>(() => {
+    const saved = localStorage.getItem('filters');
+    if (saved) {
+      try { return JSON.parse(saved) as FilterState; } catch {}
+    }
+    return {
+      status: 'all',
+      risk: 'all',
+      dateRange: { start: '', end: '' },
+    };
   });
 
   const setStatusFilter = (status: string) => {
@@ -52,6 +55,11 @@ export const useFilters = (contracts: Contract[]): UseFiltersReturn => {
       dateRange: { start: '', end: '' },
     });
   };
+
+  // Persist filters
+  useEffect(() => {
+    try { localStorage.setItem('filters', JSON.stringify(filters)); } catch {}
+  }, [filters]);
 
   const filteredContracts = useMemo(() => {
     return contracts.filter(contract => {

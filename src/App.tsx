@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
@@ -21,9 +22,11 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <Layout>
-                  <DashboardPage />
-                </Layout>
+                <ErrorBoundary>
+                  <Layout>
+                    <DashboardPage />
+                  </Layout>
+                </ErrorBoundary>
               </ProtectedRoute>
             }
           />
@@ -31,9 +34,11 @@ function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Layout>
-                  <DashboardPage />
-                </Layout>
+                <ErrorBoundary>
+                  <Layout>
+                    <DashboardPage />
+                  </Layout>
+                </ErrorBoundary>
               </ProtectedRoute>
             }
           />
@@ -41,9 +46,11 @@ function App() {
             path="/contract/:id"
             element={
               <ProtectedRoute>
-                <Layout>
-                  <ContractDetailPage />
-                </Layout>
+                <ErrorBoundary>
+                  <Layout>
+                    <ContractDetailPage />
+                  </Layout>
+                </ErrorBoundary>
               </ProtectedRoute>
             }
           />
@@ -51,9 +58,11 @@ function App() {
             path="/insights"
             element={
               <ProtectedRoute>
-                <Layout>
-                  <InsightsPage />
-                </Layout>
+                <ErrorBoundary>
+                  <Layout>
+                    <InsightsPage />
+                  </Layout>
+                </ErrorBoundary>
               </ProtectedRoute>
             }
           />
@@ -61,9 +70,11 @@ function App() {
             path="/reports"
             element={
               <ProtectedRoute>
-                <Layout>
-                  <ReportsPage />
-                </Layout>
+                <ErrorBoundary>
+                  <Layout>
+                    <ReportsPage />
+                  </Layout>
+                </ErrorBoundary>
               </ProtectedRoute>
             }
           />
@@ -71,9 +82,11 @@ function App() {
             path="/settings"
             element={
               <ProtectedRoute>
-                <Layout>
-                  <SettingsPage />
-                </Layout>
+                <ErrorBoundary>
+                  <Layout>
+                    <SettingsPage />
+                  </Layout>
+                </ErrorBoundary>
               </ProtectedRoute>
             }
           />

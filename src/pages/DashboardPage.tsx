@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -28,11 +28,13 @@ import RiskDistributionChart from '../components/charts/RiskDistributionChart';
 import ContractTimelineChart from '../components/charts/ContractTimelineChart';
 import UploadModal from '../components/UploadModal';
 import FloatingActionButton from '../components/FloatingActionButton';
+import { downloadCsv, toCsv } from '../utils/csv';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { contracts, loading, error, refetch } = useContracts();
   const { searchTerm, setSearchTerm, filteredContracts } = useSearch(contracts);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const {
     filters,
     setStatusFilter,
@@ -151,6 +153,7 @@ const DashboardPage: React.FC = () => {
                 placeholder="Search contracts..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                ref={searchInputRef}
                 className="w-full pl-10 pr-4 py-2 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
               />
             </div>
@@ -609,14 +612,32 @@ const DashboardPage: React.FC = () => {
             <h3 className="text-xl font-bold text-slate-800">Upload New Contract</h3>
             <p className="text-sm text-green-600">Add contracts to your dashboard</p>
           </div>
-          <Button
-            onClick={() => setUploadModalOpen(true)}
-            variant="primary"
-            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Upload Contract
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setUploadModalOpen(true)}
+              variant="primary"
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Contract
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                const rows = paginatedContracts.map(c => ({
+                  id: c.id,
+                  name: c.name,
+                  parties: c.parties,
+                  expiry: c.expiry,
+                  status: c.status,
+                  risk: c.risk,
+                }));
+                downloadCsv('contracts_page.csv', toCsv(rows));
+              }}
+            >
+              Export CSV
+            </Button>
+          </div>
         </div>
       </div>
 

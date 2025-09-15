@@ -1,5 +1,6 @@
 import React from 'react';
 import { FileBarChart, Calendar, Filter } from 'lucide-react';
+import { downloadCsv, toCsv } from '../utils/csv';
 import ReportCard from '../components/ReportCard';
 import QuickActions from '../components/QuickActions';
 import { useState } from 'react';
@@ -38,6 +39,21 @@ const ReportsPage: React.FC = () => {
             <div className="flex items-center gap-4 text-sm text-text-muted mt-4">
               <div className="flex items-center gap-1"><Calendar className="h-4 w-4" /> Not generated</div>
               <div className="flex items-center gap-1"><FileBarChart className="h-4 w-4" /> Multiple formats</div>
+            </div>
+            <div className="mt-4">
+              <button
+                className="text-sm text-brand-600 hover:text-brand-500"
+                onClick={() => {
+                  const rows = [
+                    { name: 'Contract Summary', scheduled: 'Weekly', lastRun: 'Today' },
+                    { name: 'Risk Analysis', scheduled: 'Weekly', lastRun: 'Today' },
+                    { name: 'Expiry Report', scheduled: 'Daily', lastRun: 'Tomorrow' },
+                  ];
+                  downloadCsv('reports.csv', toCsv(rows));
+                }}
+              >
+                Export report index (CSV)
+              </button>
             </div>
           </div>
         </div>

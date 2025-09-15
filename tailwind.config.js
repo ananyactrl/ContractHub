@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        xs: '360px',
+      },
       colors: {
         brand: {
           100: '#E8E5FF',

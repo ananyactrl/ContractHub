@@ -138,7 +138,7 @@ const DashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="dashboard-intelly flex-1 min-h-screen space-y-6 animate-fade-in px-0 pt-2">
+    <div className="dashboard-intelly flex-1 min-h-screen space-y-6 animate-fade-in pt-2">
       {/* Top Bar with Search and User Profile */}
       <div className="bg-white/90 backdrop-blur-md shadow-soft border-b border-gray-100 px-8 py-4 sticky top-0 z-20">
         <div className="flex items-center justify-between">

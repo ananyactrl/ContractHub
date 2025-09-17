@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: contracthub-backend-sqlite
+    env: python
+    plan: free
+    pythonVersion: 3.11.9
+    buildCommand: pip install --no-cache-dir -r requirements-sqlite.txt
+    startCommand: uvicorn app.main_sqlite:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        value: "https://saasdashboard-kappa.vercel.app"
+      - key: DATABASE_FILE
+        value: "contracthub.db"

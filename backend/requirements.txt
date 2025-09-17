@@ -8,4 +8,7 @@ sqlalchemy==2.0.23
 passlib[bcrypt]==1.7.4
 python-dotenv==1.0.0
 pgvector==0.2.4
+setuptools>=65
+wheel
+
 

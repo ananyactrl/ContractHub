@@ -16,7 +16,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def get_db_connection():
     """Get database connection using DATABASE_URL environment variable."""
-    database_url = os.getenv("DATABASE_URL")
+    database_url = os.getenv("DATABASE_URL", "postgresql://postgres:shreyasananya@db.iftmelhmlsngxdcuryuu.supabase.co:5432/postgres")
     if not database_url:
         raise ValueError("DATABASE_URL environment variable is not set")
     

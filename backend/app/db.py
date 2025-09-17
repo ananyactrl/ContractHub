@@ -4,7 +4,7 @@ from typing import Generator
 import psycopg2
 from psycopg2.pool import SimpleConnectionPool
 
-DATABASE_URL = os.getenv("DATABASE_URL", "")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:shreyasananya@db.iftmelhmlsngxdcuryuu.supabase.co:5432/postgres")
 
 
 _pool: SimpleConnectionPool | None = None

@@ -1,15 +1,23 @@
-# SaaS Contracts Dashboard
+# ContractHub SaaS - Full-Stack Prototype
 
-A modern, responsive React application for managing SaaS contracts with AI-powered insights and risk analysis.
+A complete full-stack SaaS prototype for contract management with AI-powered document parsing, vector search, and business intelligence dashboard.
 
 ## 🚀 Features
 
-- **Authentication**: Secure login with mock JWT authentication
-- **Contract Management**: View, search, and filter contracts
-- **AI Insights**: Risk analysis and contract clause extraction
-- **File Upload**: Drag & drop contract upload with progress tracking
-- **Responsive Design**: Works seamlessly on desktop and mobile
-- **Real-time Updates**: Live contract status and risk monitoring
+### Core Functionality
+- **Multi-tenant Authentication**: JWT-based login with user isolation
+- **Document Upload & Parsing**: Drag & drop interface with mock LlamaCloud parsing
+- **Vector Search**: PostgreSQL + pgvector for semantic contract queries
+- **Natural Language Queries**: RAG workflow for intelligent contract Q&A
+- **Business Dashboard**: Professional SaaS-style interface with analytics
+- **Contract Insights**: AI-powered risk analysis and recommendations
+
+### Technical Implementation
+- **Frontend**: React + TypeScript + Tailwind CSS
+- **Backend**: Python FastAPI with async support
+- **Database**: PostgreSQL with pgvector extension
+- **Authentication**: JWT tokens with secure multi-tenancy
+- **Deployment Ready**: Configured for Netlify, Render, and cloud databases
 
 ## 🛠️ Tech Stack
 

@@ -10,6 +10,7 @@ import ContractDetailPage from './pages/ContractDetailPage';
 import InsightsPage from './pages/InsightsPage';
 import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
+import QueryPage from './pages/QueryPage';
 
 function App() {
   return (
@@ -85,6 +86,18 @@ function App() {
                 <ErrorBoundary>
                   <Layout>
                     <SettingsPage />
+                  </Layout>
+                </ErrorBoundary>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/query"
+            element={
+              <ProtectedRoute>
+                <ErrorBoundary>
+                  <Layout>
+                    <QueryPage />
                   </Layout>
                 </ErrorBoundary>
               </ProtectedRoute>

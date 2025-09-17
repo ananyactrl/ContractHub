@@ -28,23 +28,50 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
   };
 
   const simulateUpload = async (file: UploadedFile) => {
-    // Simulate upload progress
-    for (let progress = 0; progress <= 100; progress += 10) {
-      await new Promise(resolve => setTimeout(resolve, 200));
+    try {
+      // Simulate upload progress
+      for (let progress = 0; progress <= 80; progress += 20) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        setFiles(prev => prev.map(f => 
+          f.id === file.id 
+            ? { ...f, progress }
+            : f
+        ));
+      }
+
+      // Call backend API
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: 'application/pdf' // Mock content type
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      await response.json();
+      
+      // Complete progress
       setFiles(prev => prev.map(f => 
         f.id === file.id 
-          ? { ...f, progress }
+          ? { ...f, status: 'success', progress: 100 }
+          : f
+      ));
+    } catch (error) {
+      setFiles(prev => prev.map(f => 
+        f.id === file.id 
+          ? { ...f, status: 'error', progress: 100 }
           : f
       ));
     }
-
-    // Simulate success/error
-    const isSuccess = Math.random() > 0.2; // 80% success rate
-    setFiles(prev => prev.map(f => 
-      f.id === file.id 
-        ? { ...f, status: isSuccess ? 'success' : 'error', progress: 100 }
-        : f
-    ));
   };
 
   const handleFileSelect = (selectedFiles: FileList | null) => {

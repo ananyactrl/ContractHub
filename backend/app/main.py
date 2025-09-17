@@ -43,30 +43,30 @@ async def get_user_id_from_auth(authorization: Optional[str] = Header(None)) -> 
 
 
 @app.post("/signup")
-async def signup(req: SignupLoginRequest, conn=Depends(connection)):
+def signup(req: SignupLoginRequest, conn=Depends(connection)):
     pw_hash = hashlib.sha256(req.password.encode()).hexdigest()
     try:
-        row = await conn.fetchrow(
-            "insert into users(username, password_hash) values($1,$2) returning user_id",
-            req.username, pw_hash
-        )
+        with conn.cursor() as cur:
+            cur.execute("insert into users(username, password_hash) values(%s,%s) returning user_id", (req.username, pw_hash))
+            row = cur.fetchone()
     except Exception:
         raise HTTPException(status_code=400, detail="Username already exists")
-    token = create_token(str(row["user_id"]))
-    return {"token": token, "user_id": str(row["user_id"])}
+    user_id = str(row[0])
+    token = create_token(user_id)
+    return {"token": token, "user_id": user_id}
 
 
 @app.post("/login")
-async def login(req: SignupLoginRequest, conn=Depends(connection)):
+def login(req: SignupLoginRequest, conn=Depends(connection)):
     pw_hash = hashlib.sha256(req.password.encode()).hexdigest()
-    row = await conn.fetchrow(
-        "select user_id from users where username=$1 and password_hash=$2",
-        req.username, pw_hash
-    )
-    if not row:
+    with conn.cursor() as cur:
+        cur.execute("select user_id from users where username=%s and password_hash=%s", (req.username, pw_hash))
+        row = cur.fetchone()
+    if row is None:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    token = create_token(str(row["user_id"]))
-    return {"token": token, "user_id": str(row["user_id"])}
+    user_id = str(row[0])
+    token = create_token(user_id)
+    return {"token": token, "user_id": user_id}
 
 
 def mock_embed(text: str) -> list[float]:
@@ -77,7 +77,7 @@ def mock_embed(text: str) -> list[float]:
 
 
 @app.post("/upload")
-async def upload(req: UploadRequest, user_id: str = Depends(get_user_id_from_auth), conn=Depends(connection)):
+def upload(req: UploadRequest, user_id: str = Depends(get_user_id_from_auth), conn=Depends(connection)):
     # Simulate LlamaCloud parse with two chunks
     chunks = [
         {
@@ -92,49 +92,45 @@ async def upload(req: UploadRequest, user_id: str = Depends(get_user_id_from_aut
         },
     ]
 
-    doc = await conn.fetchrow(
-        "insert into documents(user_id, filename, status, risk_score) values($1,$2,$3,$4) returning doc_id",
-        user_id, req.filename, 'Active', 'Medium'
-    )
-    doc_id = str(doc["doc_id"]) if doc else None
-
-    for ch in chunks:
-        emb = mock_embed(ch["text"])  # vector(8) ok for demo
-        await conn.execute(
-            "insert into chunks(doc_id, user_id, text_chunk, embedding, metadata) values($1,$2,$3,$4,$5)",
-            doc_id, user_id, ch["text"], emb, ch["metadata"]
-        )
+    with conn.cursor() as cur:
+        cur.execute("insert into documents(user_id, filename, status, risk_score) values(%s,%s,%s,%s) returning doc_id", (user_id, req.filename, 'Active', 'Medium'))
+        row = cur.fetchone()
+        doc_id = str(row[0]) if row else None
+        for ch in chunks:
+            emb = mock_embed(ch["text"])  # vector(8) demo
+            cur.execute("insert into chunks(doc_id, user_id, text_chunk, embedding, metadata) values(%s,%s,%s,%s,%s)", (doc_id, user_id, ch["text"], emb, ch["metadata"]))
+        conn.commit()
     return {"doc_id": doc_id, "status": "processed"}
 
 
 @app.get("/contracts")
-async def list_contracts(user_id: str = Depends(get_user_id_from_auth), conn=Depends(connection)):
-    rows = await conn.fetch(
-        "select doc_id, filename, uploaded_on, status, risk_score from documents where user_id=$1 order by uploaded_on desc",
-        user_id
-    )
+def list_contracts(user_id: str = Depends(get_user_id_from_auth), conn=Depends(connection)):
+    with conn.cursor() as cur:
+        cur.execute("select doc_id, filename, uploaded_on, status, risk_score from documents where user_id=%s order by uploaded_on desc", (user_id,))
+        rows = cur.fetchall()
     return [
         {
-            "id": str(r["doc_id"]),
-            "name": r["filename"],
+            "id": str(r[0]),
+            "name": r[1],
             "parties": "Unknown",
             "expiry": None,
-            "status": r["status"],
-            "risk": r["risk_score"],
-            "uploaded_on": r["uploaded_on"].isoformat() if r["uploaded_on"] else None,
+            "status": r[3],
+            "risk": r[4],
+            "uploaded_on": r[2].isoformat() if r[2] else None,
         } for r in rows
     ]
 
 
 @app.get("/contracts/{doc_id}")
-async def get_contract(doc_id: str, user_id: str = Depends(get_user_id_from_auth), conn=Depends(connection)):
-    doc = await conn.fetchrow(
-        "select doc_id, filename, uploaded_on, status, risk_score from documents where user_id=$1 and doc_id=$2",
-        user_id, doc_id
-    )
-    if not doc:
+def get_contract(doc_id: str, user_id: str = Depends(get_user_id_from_auth), conn=Depends(connection)):
+    with conn.cursor() as cur:
+        cur.execute("select doc_id, filename, uploaded_on, status, risk_score from documents where user_id=%s and doc_id=%s", (user_id, doc_id))
+        doc = cur.fetchone()
+    if doc is None:
         raise HTTPException(status_code=404, detail="Not found")
-    chunks = await conn.fetch("select text_chunk, metadata from chunks where user_id=$1 and doc_id=$2 limit 10", user_id, doc_id)
+    with conn.cursor() as cur:
+        cur.execute("select text_chunk, metadata from chunks where user_id=%s and doc_id=%s limit 10", (user_id, doc_id))
+        chunks = cur.fetchall()
     # Mock clauses/insights
     clauses = [
         {"title": "Termination", "summary": "90 days notice period.", "confidence": 0.82},
@@ -145,17 +141,17 @@ async def get_contract(doc_id: str, user_id: str = Depends(get_user_id_from_auth
         {"risk": "Medium", "message": "Renewal auto-renews unless cancelled 60 days before expiry."},
     ]
     evidence = [
-        {"source": str(c["metadata"].get("page", "?")), "snippet": c["text_chunk"], "relevance": 0.9}
+        {"source": str(c[1].get("page", "?")), "snippet": c[0], "relevance": 0.9}
         for c in chunks[:3]
     ]
     return {
-        "id": str(doc["doc_id"]),
-        "name": doc["filename"],
+        "id": str(doc[0]),
+        "name": doc[1],
         "parties": "Unknown",
         "start": None,
         "expiry": None,
-        "status": doc["status"],
-        "risk": doc["risk_score"],
+        "status": doc[3],
+        "risk": doc[4],
         "clauses": clauses,
         "insights": insights,
         "evidence": evidence,
@@ -163,15 +159,16 @@ async def get_contract(doc_id: str, user_id: str = Depends(get_user_id_from_auth
 
 
 @app.post("/ask")
-async def ask(req: AskRequest, user_id: str = Depends(get_user_id_from_auth), conn=Depends(connection)):
+def ask(req: AskRequest, user_id: str = Depends(get_user_id_from_auth), conn=Depends(connection)):
     q_emb = mock_embed(req.q)
-    # pgvector similarity: use <-> operator. Our embedding is small, stored as vector(8)
-    rows = await conn.fetch(
-        "select text_chunk, metadata, embedding <-> $1::vector as distance from chunks where user_id=$2 order by distance asc limit 5",
-        q_emb, user_id
-    )
+    with conn.cursor() as cur:
+        cur.execute(
+            "select text_chunk, metadata, (embedding <-> %s::vector) as distance from chunks where user_id=%s order by distance asc limit 5",
+            (q_emb, user_id)
+        )
+        rows = cur.fetchall()
     chunks = [
-        {"text": r["text_chunk"], "metadata": r["metadata"], "relevance": max(0.0, 1.0 - float(r["distance"]))}
+        {"text": r[0], "metadata": r[1], "relevance": max(0.0, 1.0 - float(r[2]))}
         for r in rows
     ]
     answer = "This is a mock answer based on your documents."

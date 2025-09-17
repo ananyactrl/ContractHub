@@ -9,8 +9,12 @@ services:
     envVars:
       - key: DATABASE_URL
         value: "postgresql://postgres:shreyasananya@db.iftmelhmlsngxdcuryuu.supabase.co:5432/postgres"
+      - key: SECRET_KEY
+        value: "super-secret-change-in-production"
       - key: JWT_SECRET
         value: "super-secret-change-in-production"
       - key: CORS_ORIGIN
         value: "https://saasdashboard-kappa.vercel.app"
+      - key: EMBEDDING_DIM
+        value: "8"
 

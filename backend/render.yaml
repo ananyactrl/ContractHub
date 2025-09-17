@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: contracthub-backend
+    name: contracthub-backend-v2
     env: python
     plan: free
     pythonVersion: 3.11.9

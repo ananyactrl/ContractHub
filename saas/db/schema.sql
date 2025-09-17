@@ -17,12 +17,12 @@ CREATE TABLE IF NOT EXISTS documents (
 );
 
 CREATE TABLE IF NOT EXISTS chunks (
-	chunk_id VARCHAR(64) PRIMARY KEY,
-	doc_id INTEGER NOT NULL REFERENCES documents(doc_id) ON DELETE CASCADE,
-	user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-	text_chunk TEXT NOT NULL,
-	embedding VECTOR(4) NOT NULL,
-	metadata JSONB
+    chunk_id VARCHAR(64) PRIMARY KEY,
+    doc_id INTEGER NOT NULL REFERENCES documents(doc_id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    text_chunk TEXT NOT NULL,
+    embedding VECTOR(8) NOT NULL,
+    metadata JSONB
 );
 
 CREATE INDEX IF NOT EXISTS idx_chunks_user ON chunks(user_id);

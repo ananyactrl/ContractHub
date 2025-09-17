@@ -8,7 +8,7 @@ from pgvector.sqlalchemy import Vector
 from .database import Base
 
 
-EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", "4"))
+EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", "8"))
 
 
 class User(Base):

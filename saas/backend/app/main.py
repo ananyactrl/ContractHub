@@ -6,6 +6,7 @@ import numpy as np
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func, text
 
@@ -45,11 +46,25 @@ def signup(user_in: UserCreate, db: Session = Depends(get_db)):
 
 @app.post("/login", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-	user = db.query(User).filter(User.username == form_data.username).first()
-	if not user or not verify_password(form_data.password, user.password_hash):
-		raise HTTPException(status_code=400, detail="Incorrect username or password")
-	token = create_access_token(subject=user.username)
-	return Token(access_token=token)
+    user = db.query(User).filter(User.username == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    token = create_access_token(subject=user.username)
+    return Token(access_token=token)
+
+
+class LoginJSON(BaseModel):
+    username: str
+    password: str
+
+
+@app.post("/login_json", response_model=Token)
+def login_json(payload: LoginJSON, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == payload.username).first()
+    if not user or not verify_password(payload.password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    token = create_access_token(subject=user.username)
+    return Token(access_token=token)
 
 
 MOCK_PARSE = {

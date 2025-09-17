@@ -3,7 +3,8 @@ services:
   name: contracts-rag-backend
   env: python
   plan: free
-  buildCommand: "pip install -r backend/requirements.txt"
+  rootDir: saas/backend
+  buildCommand: "pip install --upgrade pip && pip install -r requirements.txt"
   startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
   envVars:
     - key: DATABASE_URL
@@ -11,4 +12,4 @@ services:
     - key: SECRET_KEY
       generateValue: true
     - key: EMBEDDING_DIM
-      value: "4"
+      value: "8"

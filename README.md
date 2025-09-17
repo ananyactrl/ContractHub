@@ -29,7 +29,7 @@ ContractHub demonstrates a multi-tenant contracts workflow: users sign up and lo
 
 ## ER Diagram
 
-![ER Diagram](docs/er-diagram.png)
+![ER Diagram](backend/image.png)
 
 ## Database Schema
 

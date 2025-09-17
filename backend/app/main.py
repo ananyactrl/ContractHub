@@ -1,179 +1,204 @@
 import os
-import hashlib
-import uuid
+from datetime import datetime
 from typing import List, Optional
 
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Header
+import numpy as np
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+from sqlalchemy import select, func, text
 
-from .db import connection
-from .auth import create_token, parse_token
+from .database import init_db
+from .models import User, Document, Chunk, EMBEDDING_DIM
+from .schemas import UserCreate, Token, Document as DocumentSchema, AskRequest, AskResponse, Chunk as ChunkSchema
+from .auth import get_password_hash, verify_password, create_access_token
+from .deps import get_db, get_current_user
 
-
-app = FastAPI(title="ContractHub Backend")  # Fixed deployment compatibility
+app = FastAPI(title="Contracts RAG API")
 
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[os.getenv("CORS_ORIGIN", "*")],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+	CORSMiddleware,
+	allow_origins=["*"],
+	allow_credentials=True,
+	allow_methods=["*"],
+	allow_headers=["*"],
 )
 
 
-class SignupLoginRequest(BaseModel):
+@app.on_event("startup")
+def on_startup():
+	init_db()
+
+
+@app.post("/signup", response_model=Token)
+def signup(user_in: UserCreate, db: Session = Depends(get_db)):
+	if db.query(User).filter(User.username == user_in.username).first():
+		raise HTTPException(status_code=400, detail="Username already registered")
+	user = User(username=user_in.username, password_hash=get_password_hash(user_in.password))
+	db.add(user)
+	db.commit()
+	db.refresh(user)
+	token = create_access_token(subject=user.username)
+	return Token(access_token=token)
+
+
+@app.post("/login", response_model=Token)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    token = create_access_token(subject=user.username)
+    return Token(access_token=token)
+
+
+class LoginJSON(BaseModel):
     username: str
     password: str
 
 
-class UploadRequest(BaseModel):
-    filename: str
-    contentType: Optional[str] = None
+@app.post("/login_json", response_model=Token)
+def login_json(payload: LoginJSON, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == payload.username).first()
+    if not user or not verify_password(payload.password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    token = create_access_token(subject=user.username)
+    return Token(access_token=token)
 
 
-class AskRequest(BaseModel):
-    q: str
+MOCK_PARSE = {
+	"document_id": "doc123",
+	"chunks": [
+		{
+			"chunk_id": "c1",
+			"text": "Termination clause: Either party may terminate with 90 days’ notice.",
+			"embedding": [0.12, -0.45, 0.91, 0.33],
+			"metadata": {"page": 2, "contract_name": "MSA.pdf"},
+		},
+		{
+			"chunk_id": "c2",
+			"text": "Liability cap: Limited to 12 months’ fees.",
+			"embedding": [0.01, 0.22, -0.87, 0.44],
+			"metadata": {"page": 5, "contract_name": "MSA.pdf"},
+		},
+	],
+}
 
 
-async def get_user_id_from_auth(authorization: Optional[str] = Header(None)) -> str:
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Missing bearer token")
-    token = authorization.split(" ", 1)[1]
-    return parse_token(token)
-
-
-@app.post("/signup")
-def signup(req: SignupLoginRequest, conn=Depends(connection)):
-    pw_hash = hashlib.sha256(req.password.encode()).hexdigest()
-    try:
-        with conn.cursor() as cur:
-            cur.execute("insert into users(username, password_hash) values(%s,%s) returning user_id", (req.username, pw_hash))
-            row = cur.fetchone()
-    except Exception:
-        raise HTTPException(status_code=400, detail="Username already exists")
-    user_id = str(row[0])
-    token = create_token(user_id)
-    return {"token": token, "user_id": user_id}
-
-
-@app.post("/login")
-def login(req: SignupLoginRequest, conn=Depends(connection)):
-    pw_hash = hashlib.sha256(req.password.encode()).hexdigest()
-    with conn.cursor() as cur:
-        cur.execute("select user_id from users where username=%s and password_hash=%s", (req.username, pw_hash))
-        row = cur.fetchone()
-    if row is None:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    user_id = str(row[0])
-    token = create_token(user_id)
-    return {"token": token, "user_id": user_id}
-
-
-def mock_embed(text: str) -> list[float]:
-    # Simple deterministic mock embedding
-    h = hashlib.sha256(text.encode()).digest()
-    vals = [int.from_bytes(h[i:i+4], 'big', signed=False) % 1000 / 1000 for i in range(0, 32, 4)]
-    return vals
+def embed_query_mock(question: str) -> List[float]:
+	# Simple deterministic mock embedding from text
+	rng = np.random.default_rng(abs(hash(question)) % (2**32))
+	vec = rng.normal(size=EMBEDDING_DIM)
+	return (vec / (np.linalg.norm(vec) + 1e-8)).tolist()
 
 
 @app.post("/upload")
-def upload(req: UploadRequest, user_id: str = Depends(get_user_id_from_auth), conn=Depends(connection)):
-    # Simulate LlamaCloud parse with two chunks
-    chunks = [
-        {
-            "chunk_id": None,
-            "text": "Termination clause: Either party may terminate with 90 days’ notice.",
-            "metadata": {"page": 2, "contract_name": req.filename},
-        },
-        {
-            "chunk_id": None,
-            "text": "Liability cap: Limited to 12 months’ fees.",
-            "metadata": {"page": 5, "contract_name": req.filename},
-        },
-    ]
+def upload_contract(
+	file: UploadFile = File(...),
+	expiry_date: Optional[str] = Form(None),
+	status: Optional[str] = Form("Active"),
+	risk_score: Optional[str] = Form("Low"),
+	current_user: User = Depends(get_current_user),
+	db: Session = Depends(get_db),
+):
+	if file.content_type not in ("application/pdf", "text/plain", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"):
+		raise HTTPException(status_code=400, detail="Unsupported file type")
 
-    with conn.cursor() as cur:
-        cur.execute("insert into documents(user_id, filename, status, risk_score) values(%s,%s,%s,%s) returning doc_id", (user_id, req.filename, 'Active', 'Medium'))
-        row = cur.fetchone()
-        doc_id = str(row[0]) if row else None
-        for ch in chunks:
-            chunk_id = str(uuid.uuid4())
-            emb = mock_embed(ch["text"])  # vector(8) demo
-            cur.execute("insert into chunks(chunk_id, doc_id, user_id, text_chunk, embedding, metadata) values(%s,%s,%s,%s,%s,%s)", (chunk_id, doc_id, user_id, ch["text"], emb, ch["metadata"]))
-    conn.commit()
-    return {"doc_id": doc_id, "status": "processed"}
+	# Simulate parsing using provided mock
+	parsed = MOCK_PARSE
+
+	doc = Document(
+		user_id=current_user.user_id,
+		filename=file.filename,
+		uploaded_on=datetime.utcnow(),
+		expiry_date=datetime.fromisoformat(expiry_date) if expiry_date else None,
+		status=status or "Active",
+		risk_score=risk_score or "Low",
+	)
+	db.add(doc)
+	db.commit()
+	db.refresh(doc)
+
+	for ch in parsed["chunks"]:
+		emb = ch["embedding"]
+		if len(emb) != EMBEDDING_DIM:
+			# pad or trim to EMBEDDING_DIM
+			emb = (emb + [0.0] * EMBEDDING_DIM)[:EMBEDDING_DIM]
+		chunk = Chunk(
+			chunk_id=f"{doc.doc_id}_{ch['chunk_id']}",
+			doc_id=doc.doc_id,
+			user_id=current_user.user_id,
+			text_chunk=ch["text"],
+			embedding=emb,
+			metadata={**ch.get("metadata", {}), "filename": file.filename, "uploaded_on": doc.uploaded_on.isoformat()},
+		)
+		db.add(chunk)
+
+	db.commit()
+	return {"doc_id": doc.doc_id, "filename": doc.filename}
 
 
-@app.get("/contracts")
-def list_contracts(user_id: str = Depends(get_user_id_from_auth), conn=Depends(connection)):
-    with conn.cursor() as cur:
-        cur.execute("select doc_id, filename, uploaded_on, expiry_date, status, risk_score from documents where user_id=%s order by uploaded_on desc", (user_id,))
-        rows = cur.fetchall()
-    return [
-        {
-            "id": str(r[0]),
-            "name": r[1],
-            "parties": "Acme Corp & TechFlow Inc",  # Mock parties
-            "expiry": r[3].isoformat() if r[3] else "2025-12-31",  # Mock expiry
-            "status": r[4],
-            "risk": r[5],
-            "uploaded_on": r[2].isoformat() if r[2] else None,
-        } for r in rows
-    ]
+@app.get("/contracts", response_model=List[DocumentSchema])
+def list_contracts(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+	rows = db.query(Document).filter(Document.user_id == current_user.user_id).order_by(Document.uploaded_on.desc()).all()
+	return rows
 
 
 @app.get("/contracts/{doc_id}")
-def get_contract(doc_id: str, user_id: str = Depends(get_user_id_from_auth), conn=Depends(connection)):
-    with conn.cursor() as cur:
-        cur.execute("select doc_id, filename, uploaded_on, expiry_date, status, risk_score from documents where user_id=%s and doc_id=%s", (user_id, doc_id))
-        doc = cur.fetchone()
-    if doc is None:
-        raise HTTPException(status_code=404, detail="Not found")
-    with conn.cursor() as cur:
-        cur.execute("select text_chunk, metadata from chunks where user_id=%s and doc_id=%s limit 10", (user_id, doc_id))
-        chunks = cur.fetchall()
-    # Mock clauses/insights
-    clauses = [
-        {"title": "Termination", "summary": "90 days notice period.", "confidence": 0.82},
-        {"title": "Liability Cap", "summary": "12 months’ fees limit.", "confidence": 0.87},
-    ]
-    insights = [
-        {"risk": "High", "message": "Liability cap excludes data breach costs."},
-        {"risk": "Medium", "message": "Renewal auto-renews unless cancelled 60 days before expiry."},
-    ]
-    evidence = [
-        {"source": str(c[1].get("page", "?")), "snippet": c[0], "relevance": 0.9}
-        for c in chunks[:3]
-    ]
-    return {
-        "id": str(doc[0]),
-        "name": doc[1],
-        "parties": "Acme Corp & TechFlow Inc",
-        "start": "2024-01-01",  # Mock start date
-        "expiry": doc[3].isoformat() if doc[3] else "2025-12-31",  # Mock expiry
-        "status": doc[4],
-        "risk": doc[5],
-        "clauses": clauses,
-        "insights": insights,
-        "evidence": evidence,
-    }
+def contract_detail(doc_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+	doc = db.query(Document).filter(Document.doc_id == doc_id, Document.user_id == current_user.user_id).first()
+	if not doc:
+		raise HTTPException(status_code=404, detail="Document not found")
+	# Mock clauses and insights
+	clauses = [
+		{"title": "Termination", "text": "Either party may terminate with 90 days’ notice.", "confidence": 0.92},
+		{"title": "Liability Cap", "text": "Limited to 12 months’ fees.", "confidence": 0.88},
+	]
+	insights = [
+		{"risk": "Renewal window short", "recommendation": "Negotiate 120 days’ notice."},
+		{"risk": "Low liability cap", "recommendation": "Increase to 18 months’ fees."},
+	]
+	return {
+		"document": DocumentSchema.model_validate(doc),
+		"clauses": clauses,
+		"insights": insights,
+	}
 
 
-@app.post("/ask")
-def ask(req: AskRequest, user_id: str = Depends(get_user_id_from_auth), conn=Depends(connection)):
-    q_emb = mock_embed(req.q)
-    with conn.cursor() as cur:
-        cur.execute(
-            "select text_chunk, metadata, (embedding <-> %s::vector) as distance from chunks where user_id=%s order by distance asc limit 5",
-            (q_emb, user_id)
-        )
-        rows = cur.fetchall()
-    chunks = [
-        {"text": r[0], "metadata": r[1], "relevance": max(0.0, 1.0 - float(r[2]))}
-        for r in rows
-    ]
-    answer = "This is a mock answer based on your documents."
-    return {"answer": answer, "chunks": chunks}
+@app.post("/ask", response_model=AskResponse)
+def ask_question(payload: AskRequest, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+	query_vec = embed_query_mock(payload.question)
+	# Use pgvector cosine distance: smaller distance is more similar
+	# Note: SQLAlchemy pgvector supports operators; we can use raw SQL for clarity
+	base_sql = """
+		SELECT chunk_id, text_chunk, metadata,
+			1 - (embedding <#> :qvec) AS relevance
+		FROM chunks
+		WHERE user_id = :uid
+	"""
+	params = {"qvec": query_vec, "uid": current_user.user_id}
+	if payload.doc_id is not None:
+		base_sql += " AND doc_id = :docid"
+		params["docid"] = payload.doc_id
+	base_sql += " ORDER BY embedding <#> :qvec ASC LIMIT 5"
+	rows = db.execute(text(base_sql), params).mappings().all()
+
+	retrieved = [
+		ChunkSchema(
+			chunk_id=r["chunk_id"],
+			text_chunk=r["text_chunk"],
+			metadata=r["metadata"],
+			relevance=float(r["relevance"]),
+			confidence=round(min(0.99, max(0.5, float(r["relevance"]))), 2),
+		)
+		for r in rows
+	]
+
+	answer = "This is a mock AI answer summarizing key clauses and risks based on retrieved snippets."
+	return AskResponse(answer=answer, retrieved_chunks=retrieved)
 
 
+@app.get("/")
+def health():
+	return {"status": "ok"}

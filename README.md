@@ -1,195 +1,115 @@
-# ContractHub SaaS - Full-Stack Prototype
+# ContractHub SaaS — Full-Stack Prototype
 
-A complete full-stack SaaS prototype for contract management with AI-powered document parsing, vector search, and business intelligence dashboard.
+Business-friendly prototype to manage contracts end-to-end: upload, parse (mock), store embeddings, query with vector search, and explore insights in a dashboard.
 
-## 🚀 Features
+## Live Links
 
-### Core Functionality
-- **Multi-tenant Authentication**: JWT-based login with user isolation
-- **Document Upload & Parsing**: Drag & drop interface with mock LlamaCloud parsing
-- **Vector Search**: PostgreSQL + pgvector for semantic contract queries
-- **Natural Language Queries**: RAG workflow for intelligent contract Q&A
-- **Business Dashboard**: Professional SaaS-style interface with analytics
-- **Contract Insights**: AI-powered risk analysis and recommendations
+- **Frontend (Vercel)**: [saasdashboard-kappa.vercel.app](https://saasdashboard-kappa.vercel.app)
+- **Backend (Render)**: [contracthub.onrender.com](https://contracthub.onrender.com)
 
-### Technical Implementation
-- **Frontend**: React + TypeScript + Tailwind CSS
-- **Backend**: Python FastAPI with async support
-- **Database**: PostgreSQL with pgvector extension
-- **Authentication**: JWT tokens with secure multi-tenancy
-- **Deployment Ready**: Configured for Netlify, Render, and cloud databases
+## Overview
 
-## 🛠️ Tech Stack
+ContractHub demonstrates a multi-tenant contracts workflow: users sign up and log in, upload PDF/TXT/DOCX contracts, a mock LlamaCloud parse produces chunks and embeddings, data is stored in Postgres + pgvector, and users run natural language queries to retrieve the most relevant snippets. A clean dashboard presents statuses, risks, and details for quick business review.
 
-- **Frontend**: React 19 with TypeScript
-- **Styling**: Tailwind CSS
-- **Routing**: React Router v6
-- **State Management**: React Context API
-- **Icons**: Lucide React
-- **Build Tool**: Vite
-- **Deployment**: Vercel (ready)
+## Tech Stack
 
-## 📋 Prerequisites
+- **Frontend**: React + TypeScript + Tailwind CSS (Vite)
+- **Backend**: FastAPI (Python)
+- **Database**: PostgreSQL + pgvector
+- **Auth**: JWT (multi-tenant isolation)
+- **Deploy**: Frontend (Vercel), Backend (Render), DB (Supabase Postgres)
 
-- Node.js 18+ 
-- npm or yarn
-
-## 🚀 Quick Start
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd saasdashboard
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser**
-   Navigate to `http://localhost:5173`
-
-## 🔐 Demo Credentials
-
-- **Username**: Any username (e.g., `admin`, `user`, `demo`)
-- **Password**: `test123`
-
-## 📁 Project Structure
+## Repository Structure
 
 ```
-src/
-├── components/          # Reusable UI components
-│   ├── Layout.tsx      # Main app layout with sidebar
-│   ├── ProtectedRoute.tsx # Route protection wrapper
-│   └── UploadModal.tsx # File upload modal
-├── contexts/           # React contexts
-│   └── AuthContext.tsx # Authentication state management
-├── pages/              # Page components
-│   ├── LoginPage.tsx   # Login/authentication page
-│   ├── DashboardPage.tsx # Main contracts dashboard
-│   ├── ContractDetailPage.tsx # Individual contract view
-│   ├── InsightsPage.tsx # Analytics and insights
-│   ├── ReportsPage.tsx # Report generation
-│   └── SettingsPage.tsx # User settings
-├── services/           # API and data services
-│   └── api.ts         # Mock API functions
-└── App.tsx            # Main application component
+/frontend   # React + Tailwind app (Login, Dashboard, Upload, Query, Details)
+/backend    # FastAPI app (auth, upload, contracts, ask)
+/docs       # ER diagram and docs assets (er-diagram.png)
 ```
 
-## 🎨 Design Decisions
+## ER Diagram
 
-### UI/UX Choices
-- **Modern Design**: Clean, professional interface with consistent spacing
-- **Color Scheme**: Primary blue (#3b82f6) with semantic colors for status indicators
-- **Typography**: Inter font family for excellent readability
-- **Responsive**: Mobile-first approach with breakpoints at sm, md, lg, xl
+![ER Diagram](docs/er-diagram.png)
 
-### Technical Decisions
-- **React Context**: Chosen over Redux for simpler state management needs
-- **Tailwind CSS**: Utility-first CSS for rapid development and consistency
-- **TypeScript**: Full type safety for better development experience
-- **Mock API**: Simulated API calls with realistic delays and error handling
+## Database Schema
 
-### Component Architecture
-- **Functional Components**: Modern React with hooks only
-- **Custom Hooks**: Reusable logic extraction where beneficial
-- **Compound Components**: Layout component wrapping page content
-- **Error Boundaries**: Graceful error handling throughout the app
+- `users(user_id, username, password_hash)`
+- `documents(doc_id, user_id, filename, uploaded_on, expiry_date, status, risk_score)`
+- `chunks(chunk_id, doc_id, user_id, text_chunk, embedding VECTOR(8), metadata)`
 
-## 🔧 Available Scripts
+## Mock LlamaCloud Response
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+```json
+{
+  "document_id": "doc123",
+  "chunks": [
+    {
+      "chunk_id": "c1",
+      "text": "Termination clause: Either party may terminate with 90 days’ notice.",
+      "embedding": [0.12, -0.45, 0.91, 0.33],
+      "metadata": { "page": 2, "contract_name": "MSA.pdf" }
+    },
+    {
+      "chunk_id": "c2",
+      "text": "Liability cap: Limited to 12 months’ fees.",
+      "embedding": [0.01, 0.22, -0.87, 0.44],
+      "metadata": { "page": 5, "contract_name": "MSA.pdf" }
+    }
+  ]
+}
+```
 
-## 📱 Responsive Design
+## Local Setup
 
-The application is fully responsive with breakpoints:
-- **Mobile**: < 640px (sm)
-- **Tablet**: 640px - 1024px (md-lg)
-- **Desktop**: > 1024px (lg+)
+1) Backend
 
-Key responsive features:
-- Collapsible sidebar on mobile
-- Responsive table with horizontal scroll
-- Adaptive grid layouts
-- Touch-friendly interface elements
-
-## 🎯 Key Features Implementation
-
-### Authentication
-- Mock JWT token storage in localStorage
-- Protected routes with automatic redirect
-- User session persistence across browser refreshes
-
-### Contract Dashboard
-- Real-time search across contract names and parties
-- Multi-filter system (status, risk level)
-- Pagination with configurable page size
-- Loading and error states
-
-### File Upload
-- Drag & drop interface
-- Progress tracking with visual indicators
-- File type validation (PDF, DOC, DOCX)
-- Simulated upload with success/error states
-
-### Contract Details
-- Comprehensive contract metadata display
-- AI-generated clause analysis with confidence scores
-- Risk insights with severity indicators
-- Evidence panel with relevance scoring
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-1. Push code to GitHub
-2. Connect repository to Vercel
-3. Deploy automatically on push
-
-### Manual Build
 ```bash
-npm run build
-# Deploy the 'dist' folder to your hosting provider
+cd backend
+python -m venv .venv
+. .venv/bin/activate  # Windows: .\.venv\Scripts\activate
+pip install -r requirements.txt
+export DATABASE_URL=postgresql://<user>:<pass>@<host>:5432/<db>
+export SECRET_KEY=dev-secret
+export EMBEDDING_DIM=8
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-## 🧪 Testing
+2) Frontend
 
-The application includes:
-- Form validation and error handling
-- Loading states for all async operations
-- Empty states for no data scenarios
-- Error boundaries for graceful failure handling
+```bash
+cd frontend
+npm install
+VITE_API_BASE=http://localhost:8000 npm run dev
+```
 
-## 🔮 Future Enhancements
+## Demo Steps
 
-- Real API integration
-- Advanced search and filtering
-- Contract editing capabilities
-- Bulk operations
-- Export functionality
-- Real-time notifications
-- Dark mode support
+1. Sign up: open Login page and click “Create one”.
+2. Log in: receive JWT and get redirected to Dashboard.
+3. Upload: drag & drop a PDF/TXT/DOCX, track progress; unsupported types show error.
+4. Dashboard: search, filter (Status/Risk), and paginate (10 rows). Color-coded risk.
+5. Detail: view header metadata, clauses with confidence, insights, and evidence.
+6. Query: ask a question; backend embeds the query, runs pgvector search scoped by `user_id`, and returns top relevant chunks plus a mock AI answer.
 
-## 📄 License
+## Deployment
 
-This project is created for demonstration purposes.
+- Frontend: Vercel connected to this repo; auto-deploys on push.
+- Backend: Render using `backend/render.yaml` (sets build/start and env vars).
+- DB: Supabase Postgres with `vector` extension enabled.
 
-## 🤝 Contributing
+## Notes
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+- Parsing uses a mock LlamaCloud response (see above).
+- Embeddings use dimension 8 and are stored in `chunks.embedding` (pgvector).
+- All reads/writes are scoped by `user_id` to ensure tenant isolation.
 
----
+## Basic Tests (for reviewers)
 
-**Built with ❤️ using React, TypeScript, and Tailwind CSS**
+- Auth: valid/invalid login; expired token returns 401.
+- Upload: PDF/TXT/DOCX accepted; PNG rejected; progress bar during upload.
+- Query: results limited to current user’s documents; relevance shows.
+- UI: responsive layout; empty/loading/error states on dashboard.
+
+—
+
+Built for demonstration and evaluation purposes.

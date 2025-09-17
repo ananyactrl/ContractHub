@@ -1,26 +1,30 @@
 import os
-import time
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import jwt
-from fastapi import HTTPException, status
+from passlib.context import CryptContext
 
-JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-change-me")
-JWT_ALG = "HS256"
-JWT_EXP_SECS = 60 * 60 * 24 * 7
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
-
-def create_token(user_id: str) -> str:
-  now = int(time.time())
-  payload = {"sub": user_id, "iat": now, "exp": now + JWT_EXP_SECS}
-  return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def parse_token(token: str) -> str:
-  try:
-    payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
-    return str(payload.get("sub"))
-  except Exception:
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+def verify_password(plain_password: str, password_hash: str) -> bool:
+	return pwd_context.verify(plain_password, password_hash)
 
 
+def get_password_hash(password: str) -> str:
+	return pwd_context.hash(password)
+
+
+def create_access_token(subject: str, expires_delta: Optional[timedelta] = None) -> str:
+	expire = datetime.now(tz=timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+	to_encode = {"sub": subject, "exp": expire}
+	return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def decode_access_token(token: str) -> dict:
+	return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

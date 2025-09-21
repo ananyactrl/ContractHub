@@ -1,7 +1,10 @@
 import os
+
 from datetime import datetime
 from typing import List, Optional
 
+from dotenv import load_dotenv
+load_dotenv()
 import numpy as np
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,18 +25,32 @@ ai_service = AIService()
 
 @app.post("/analyze-contract/{doc_id}")
 async def analyze_contract(doc_id: int, current_user: User = Depends(get_current_user)):
-    # Get document text from database
-    # Use AI service to analyze
-    analysis = ai_service.analyze_contract(document_text)
-    return {"analysis": analysis, "doc_id": doc_id}
+    # Get document from database (you'll need to implement this)
+    with get_db_session() as db:
+        document = db.query(Document).filter(
+            Document.doc_id == doc_id,
+            Document.user_id == current_user.user_id
+        ).first()
+        
+        if not document:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        # For now, use filename as text (you can read actual file content later)
+        analysis = ai_service.analyze_contract(f"Contract file: {document.filename}")
+        
+        return {"analysis": analysis, "document": document.filename}
 
 @app.post("/ask-question")
 async def ask_question(request: dict, current_user: User = Depends(get_current_user)):
-    question = request["question"]
-    doc_id = request["doc_id"]
-    # Get document text
-    answer = ai_service.ask_contract_question(document_text, question)
-    return {"answer": answer}
+    question = request.get("question")
+    doc_id = request.get("doc_id")
+    
+    if not question:
+        raise HTTPException(status_code=400, detail="Question is required")
+    
+    # Simple demo response
+    answer = ai_service.ask_contract_question("Sample contract content", question)
+    return {"answer": answer, "question": question}
 
 app = FastAPI(title="Contracts RAG API")
 

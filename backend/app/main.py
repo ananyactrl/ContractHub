@@ -19,7 +19,7 @@ from .schemas import UserCreate, Token, Document as DocumentSchema, AskRequest, 
 from .auth import get_password_hash, verify_password, create_access_token
 from .deps import get_db, get_current_user
 
-from ai_service import AIService
+from app.ai_service import AIService
 
 ai_service = AIService()
 

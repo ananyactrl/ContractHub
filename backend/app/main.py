@@ -16,6 +16,25 @@ from .schemas import UserCreate, Token, Document as DocumentSchema, AskRequest, 
 from .auth import get_password_hash, verify_password, create_access_token
 from .deps import get_db, get_current_user
 
+from ai_service import AIService
+
+ai_service = AIService()
+
+@app.post("/analyze-contract/{doc_id}")
+async def analyze_contract(doc_id: int, current_user: User = Depends(get_current_user)):
+    # Get document text from database
+    # Use AI service to analyze
+    analysis = ai_service.analyze_contract(document_text)
+    return {"analysis": analysis, "doc_id": doc_id}
+
+@app.post("/ask-question")
+async def ask_question(request: dict, current_user: User = Depends(get_current_user)):
+    question = request["question"]
+    doc_id = request["doc_id"]
+    # Get document text
+    answer = ai_service.ask_contract_question(document_text, question)
+    return {"answer": answer}
+
 app = FastAPI(title="Contracts RAG API")
 
 app.add_middleware(

@@ -45,7 +45,7 @@ class Chunk(Base):
 	user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False, index=True)
 	text_chunk = Column(Text, nullable=False)
 	embedding = Column(Vector(EMBEDDING_DIM), nullable=False)
-	metadata = Column(JSONB, nullable=True)
+	meta = Column(JSONB, nullable=True)
 
 	user = relationship("User", back_populates="chunks")
 	document = relationship("Document", back_populates="chunks")

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { mockContracts, mockRecentActivity } from '../mockData'
+import { ResponsiveContainer, LineChart, Line, Area, AreaChart, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
 
 // Enhanced Icon Components
 const DocumentIcon = () => (
@@ -74,6 +75,18 @@ export default function Dashboard() {
     const highRisk = docs.filter(d => d.risk_score === 'High').length
     
     return { total, active, renewalDue, expired, highRisk }
+  }, [docs])
+
+  const performanceData = useMemo(() => {
+    const byMonth: Record<string, number> = {}
+    const formatter = new Intl.DateTimeFormat('en-US', { month: 'short' })
+    docs.forEach(d => {
+      const dt = new Date(d.uploaded_on)
+      const key = `${formatter.format(dt)}`
+      byMonth[key] = (byMonth[key] || 0) + 1
+    })
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    return months.map(m => ({ m, v: byMonth[m] || 0 }))
   }, [docs])
 
   if (loading) return (
@@ -213,12 +226,23 @@ export default function Dashboard() {
                   <button className="text-sm text-gray-500 hover:text-gray-700">90D</button>
                 </div>
               </div>
-              <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-4xl mb-2">📈</div>
-                  <p className="text-gray-500">Chart visualization would go here</p>
-                  <p className="text-sm text-gray-400">Integration with Chart.js or Recharts</p>
-                </div>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={performanceData} margin={{ left: 8, right: 8, top: 8, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="perfFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#6366F1" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="#6366F1" stopOpacity={0.05} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid stroke="#E5E7EB" vertical={false} />
+                    <XAxis dataKey="m" tick={{ fill: '#64748B', fontSize: 12 }} axisLine={false} tickLine={false} />
+                    <YAxis allowDecimals={false} tick={{ fill: '#64748B', fontSize: 12 }} axisLine={false} tickLine={false} />
+                    <Tooltip cursor={{ stroke: '#94A3B8', strokeDasharray: '3 3' }} />
+                    <Area type="monotone" dataKey="v" stroke="#6366F1" fill="url(#perfFill)" strokeWidth={2} />
+                    <Line type="monotone" dataKey="v" stroke="#8B5CF6" dot={{ r: 3 }} strokeWidth={1.5} />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
             </div>
 

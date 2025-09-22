@@ -1,63 +1,64 @@
-name: Deploy Frontend to AWS
+name: Deploy ContractHub Frontend
 
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/deploy-frontend.yml'
+  workflow_dispatch:  # Allow manual triggers
+
+env:
+  NODE_VERSION: '18'
 
 jobs:
-  build-and-deploy:
+  deploy:
+    name: Deploy to AWS
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-          cache-dependency-path: 'frontend/package-lock.json'
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Archive dist
-        run: tar -czf dist.tar.gz -C dist .
-
-      - name: Add SSH key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: |
-            ${{ secrets.AWS_SSH_KEY }}
-
-      - name: Known hosts
-        run: ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Upload artifacts to server
-        run: scp dist.tar.gz ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }}:/tmp/contracthub-dist.tar.gz
-
-      - name: Deploy on server
-        run: |
-          ssh ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} << 'EOSSH'
-          set -euo pipefail
-          TARGET_DIR="${DEPLOY_TARGET_DIR:-/var/www/contracthub}"
-          sudo mkdir -p "$TARGET_DIR"
-          sudo tar -xzf /tmp/contracthub-dist.tar.gz -C "$TARGET_DIR"
-          sudo rm -f /tmp/contracthub-dist.tar.gz
-          if command -v systemctl >/dev/null 2>&1; then
-            sudo systemctl reload nginx || true
-          fi
-          EOSSH
-        env:
-          DEPLOY_TARGET_DIR: ${{ secrets.DEPLOY_TARGET_DIR }}
-
-
+    - name: 🚀 Checkout
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 📥 Install dependencies
+      run: npm install
+      
+    - name: 🏗️ Build application
+      run: npm run build
+      env:
+        CI: false  # Ignore warnings as errors
+        
+    - name: 🔐 Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+        
+    - name: 🚀 Deploy to S3
+      run: |
+        aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} \
+          --delete \
+          --cache-control max-age=31536000 \
+          --exclude "*.html" \
+          --exclude "*.json"
+        
+        aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} \
+          --cache-control max-age=0 \
+          --include "*.html" \
+          --include "*.json"
+          
+    - name: 🌐 Invalidate CloudFront (if exists)
+      if: secrets.CLOUDFRONT_DISTRIBUTION_ID != ''
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+          --paths "/*"
+          
+    - name: ✅ Deployment complete
+      run: |
+        echo "🎉 Deployment successful!"
+        echo "Website URL: https://${{ secrets.AWS_S3_BUCKET }}.s3-website-${{ secrets.AWS_REGION || 'us-east-1' }}.amazonaws.com"

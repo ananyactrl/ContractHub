@@ -1,56 +1,99 @@
-// src/mockData.js
+// Mock contract data for ContractHub
 export const mockContracts = [
   {
     doc_id: 1,
-    filename: "Service Agreement - Google Cloud.pdf",
-    uploaded_on: "2024-09-22T10:30:00Z",
-    expiry_date: "2025-03-15T00:00:00Z",
+    filename: "Master Service Agreement",
+    parties: "TechCorp & ClientCo",
+    uploaded_on: "2024-11-15T10:30:00Z",
+    expiry_date: "2025-11-15T00:00:00Z",
     status: "Active",
     risk_score: "Low",
-    fileSize: "2.5MB",
-    category: "Service Contract"
+    fileSize: "2.1MB",
+    category: "Service Agreement",
+    value: "$120,000"
   },
   {
     doc_id: 2,
-    filename: "Employment Contract - Sarah Johnson.pdf", 
-    uploaded_on: "2024-09-20T14:15:00Z",
-    expiry_date: "2025-09-20T00:00:00Z",
+    filename: "Software License Agreement", 
+    parties: "Microsoft & TechCorp",
+    uploaded_on: "2024-10-20T14:15:00Z",
+    expiry_date: "2025-10-20T00:00:00Z",
     status: "Renewal Due",
     risk_score: "Medium",
-    fileSize: "1.8MB",
-    category: "HR Contract"
+    fileSize: "1.5MB",
+    category: "License Agreement",
+    value: "$85,000"
   },
   {
     doc_id: 3,
-    filename: "Vendor Agreement - Supplier Inc.pdf",
+    filename: "Employment Contract",
+    parties: "TechCorp & John Smith",
     uploaded_on: "2024-09-18T09:45:00Z", 
-    expiry_date: "2024-12-01T00:00:00Z",
-    status: "Expired",
-    risk_score: "High",
-    fileSize: "3.2MB",
-    category: "Vendor Contract"
-  },
-  {
-    doc_id: 4,
-    filename: "NDA - Microsoft Partnership.pdf",
-    uploaded_on: "2024-09-15T16:20:00Z",
-    expiry_date: "2027-09-15T00:00:00Z", 
+    expiry_date: "2025-09-18T00:00:00Z",
     status: "Active",
     risk_score: "Low",
     fileSize: "890KB",
-    category: "Legal Agreement"
+    category: "HR Contract",
+    value: "$75,000"
+  },
+  {
+    doc_id: 4,
+    filename: "Vendor Supply Agreement",
+    parties: "SupplyCorp & TechCorp",
+    uploaded_on: "2024-08-15T16:20:00Z",
+    expiry_date: "2024-12-01T00:00:00Z",
+    status: "Expired",
+    risk_score: "High",
+    fileSize: "3.2MB", 
+    category: "Vendor Contract",
+    value: "$200,000"
   },
   {
     doc_id: 5,
-    filename: "SaaS Subscription - Salesforce.pdf",
-    uploaded_on: "2024-09-10T11:00:00Z",
-    expiry_date: "2025-01-10T00:00:00Z",
-    status: "Renewal Due",
-    risk_score: "Medium",
-    fileSize: "1.2MB", 
-    category: "Software License"
+    filename: "Non-Disclosure Agreement",
+    parties: "TechCorp & StartupX",
+    uploaded_on: "2024-11-10T11:00:00Z",
+    expiry_date: "2027-11-10T00:00:00Z",
+    status: "Active",
+    risk_score: "Low",
+    fileSize: "650KB",
+    category: "Legal Agreement",
+    value: "$0"
   }
 ];
+
+export const mockRecentActivity = [
+  {
+    date: "Today, 2:30 PM",
+    user: "Sarah Johnson",
+    action: "Created",
+    item: "Master Service Agreement",
+    category: "Service Contract"
+  },
+  {
+    date: "Yesterday, 4:15 PM",
+    user: "Mike Chen", 
+    action: "Reviewed",
+    item: "Employment Contract",
+    category: "HR Contract"
+  },
+  {
+    date: "2 days ago",
+    user: "Anna Davis",
+    action: "Signed",
+    item: "NDA Agreement",
+    category: "Legal"
+  }
+];
+
+export const mockUser = {
+  username: "sarah.johnson",
+  email: "sarah@techcorp.com",
+  firstName: "Sarah",
+  lastName: "Johnson",
+  avatar: "SJ"
+};
+
 
 export const mockContractDetail = {
   document: {
@@ -87,12 +130,7 @@ export const mockContractDetail = {
   ]
 };
 
-export const mockUser = {
-  username: "ananya123",
-  email: "ananya@contracthub.com",
-  firstName: "Ananya",
-  lastName: "Ctrl"
-};
+
 
 export const mockQueryResponse = {
   answer: "Based on the contract analysis, the termination notice period is 60 days. Either party must provide written notice 60 days prior to the desired termination date. The contract also includes a 30-day data migration support period following termination.",

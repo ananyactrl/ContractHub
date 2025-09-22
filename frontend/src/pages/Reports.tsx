@@ -1,14 +1,14 @@
 export default function Reports() {
   return (
-    <div className="space-y-12">
+    <div className="space-y-10">
       <section>
         <h1 className="text-h1 text-textPrimary">Reports & Analytics</h1>
-        <p className="text-bodyLg text-textSecondary mt-2">Generate and schedule custom reports</p>
+        <p className="text-body text-textSecondary mt-2">Generate and schedule custom reports</p>
         <div className="mt-4"><button className="btn-primary">Create New Report</button></div>
       </section>
 
       <section>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {[
             { title: 'Executive Summary Report', desc: 'High-level KPIs and metrics' },
             { title: 'Compliance Report', desc: 'Compliance status and violations' },
@@ -17,13 +17,13 @@ export default function Reports() {
             { title: 'Vendor Performance', desc: 'Vendor relationship insights' },
             { title: 'Renewal Pipeline', desc: 'Upcoming renewals and actions' },
           ].map(t => (
-            <div key={t.title} className="card">
-              <div className="card-header">
-                <div>
-                  <div className="text-h3 text-textPrimary">{t.title}</div>
-                  <div className="text-body text-textSecondary">{t.desc}</div>
+            <div key={t.title} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="text-lg font-semibold text-textPrimary truncate">{t.title}</div>
+                  <div className="text-sm text-textSecondary mt-1 truncate">{t.desc}</div>
                 </div>
-                <button className="btn-secondary">Generate Report</button>
+                <button className="btn-secondary whitespace-nowrap px-3 py-1.5">Generate Report</button>
               </div>
             </div>
           ))}
@@ -31,7 +31,7 @@ export default function Reports() {
       </section>
 
       <section className="card">
-        <div className="card-header"><div className="text-h3 text-textPrimary">Recent Reports</div></div>
+        <div className="card-header"><div className="text-lg font-semibold text-textPrimary">Recent Reports</div></div>
         <div className="overflow-x-auto">
           <table className="table-modern">
             <thead>

@@ -10,7 +10,7 @@ export default function AppLayout() {
     const [open, setOpen] = useState(false)
     return (
         <div className="min-h-screen flex" style={{ backgroundColor: '#F8FAFC' }}>
-            <aside className="hidden md:flex md:flex-col" style={{ width: 240, backgroundColor: '#F8FAFC' }}>
+            <aside className="hidden md:flex md:flex-col fixed inset-y-0 border-r border-gray-200 shadow-sm" style={{ width: 260, backgroundColor: '#F8FAFC' }}>
                 <div className="h-14 flex items-center px-5 text-textPrimary font-semibold">ContractHub</div>
                 <nav className="px-3 py-2 space-y-1 text-sm">
                     <NavLink to="/app/dashboard" className={({isActive}) => `flex items-center px-3 py-2 rounded-lg ${isActive ? 'bg-primary text-white' : 'text-textPrimary hover:bg-slate-100'}`}>Dashboard</NavLink>
@@ -19,7 +19,7 @@ export default function AppLayout() {
                     <NavLink to="/app/settings" className={({isActive}) => `flex items-center px-3 py-2 rounded-lg ${isActive ? 'bg-primary text-white' : 'text-textPrimary hover:bg-slate-100'}`}>Settings</NavLink>
                 </nav>
             </aside>
-            <main className="flex-1">
+            <main className="flex-1 md:ml-[260px]">
                 <div className="sticky top-0 bg-white border-b z-10">
                     <div className="px-6 h-16 flex items-center justify-between">
                         <div className="flex items-center gap-3">

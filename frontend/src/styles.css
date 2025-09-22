@@ -33,7 +33,7 @@ textarea {
 
 /* Card styles */
 .card {
-  @apply bg-white rounded-xl shadow-sm border border-gray-200;
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6;
   transition: box-shadow 0.2s ease;
 }
 
@@ -140,6 +140,17 @@ select:focus {
     @apply grid-cols-1;
   }
 }
+
+/* Compact UI scale for analytics pages */
+.compact h1 { @apply text-2xl; }
+.compact h2 { @apply text-xl; }
+.compact .text-h1 { @apply text-2xl; }
+.compact .text-h3 { @apply text-base; }
+.compact .card { @apply rounded-lg; }
+.compact .btn-primary, .compact .btn-secondary { @apply text-xs px-3 py-1.5; }
+.compact .table-modern th { @apply text-[10px] py-2; }
+.compact .table-modern td { @apply text-xs py-2; }
+.compact .stat-card { @apply p-4; }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

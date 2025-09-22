@@ -1,6 +1,6 @@
 export default function Reports() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-8 compact">
       <section>
         <h1 className="text-h1 text-textPrimary">Reports & Analytics</h1>
         <p className="text-body text-textSecondary mt-2">Generate and schedule custom reports</p>
@@ -8,7 +8,7 @@ export default function Reports() {
       </section>
 
       <section>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             { title: 'Executive Summary Report', desc: 'High-level KPIs and metrics' },
             { title: 'Compliance Report', desc: 'Compliance status and violations' },
@@ -22,6 +22,12 @@ export default function Reports() {
                 <div className="min-w-0">
                   <div className="text-lg font-semibold text-textPrimary truncate">{t.title}</div>
                   <div className="text-sm text-textSecondary mt-1 truncate">{t.desc}</div>
+                  <div className="mt-2 flex flex-wrap gap-2 text-xs text-textSecondary">
+                    <span className="px-2 py-1 rounded bg-gray-100">CSV</span>
+                    <span className="px-2 py-1 rounded bg-gray-100">PDF</span>
+                    <span className="px-2 py-1 rounded bg-gray-100">Filter by vendor</span>
+                    <span className="px-2 py-1 rounded bg-gray-100">Save view</span>
+                  </div>
                 </div>
                 <button className="btn-secondary whitespace-nowrap px-3 py-1.5">Generate Report</button>
               </div>

@@ -9,10 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-tooltip": "^1.2.8",
     "axios": "^1.7.2",
+    "framer-motion": "^12.23.18",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.1"
+    "react-router-dom": "^6.26.1",
+    "recharts": "^3.2.1"
   },
   "devDependencies": {
     "@types/node": "^22.5.2",

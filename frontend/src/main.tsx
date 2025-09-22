@@ -7,6 +7,9 @@ import Dashboard from './pages/Dashboard'
 import Upload from './pages/Upload'
 import ContractDetail from './pages/ContractDetail'
 import Query from './pages/Query'
+import Insights from './pages/Insights'
+import Reports from './pages/Reports'
+import Settings from './pages/Settings'
 import AppLayout from './shared/AppLayout'
 
 const router = createBrowserRouter([
@@ -16,6 +19,9 @@ const router = createBrowserRouter([
 		element: <AppLayout />,
 		children: [
 			{ path: 'dashboard', element: <Dashboard /> },
+			{ path: 'insights', element: <Insights /> },
+			{ path: 'reports', element: <Reports /> },
+			{ path: 'settings', element: <Settings /> },
 			{ path: 'upload', element: <Upload /> },
 			{ path: 'contracts/:id', element: <ContractDetail /> },
 			{ path: 'query', element: <Query /> },

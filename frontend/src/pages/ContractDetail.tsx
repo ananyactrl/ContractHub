@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useParams } from 'react-router-dom'
-
+import { mockContracts } from './mockData.js';
 const API_BASE = import.meta.env.VITE_API_BASE 
 
 export default function ContractDetail() {
